@@ -1,0 +1,1 @@
+Net use x: \\location\folder
