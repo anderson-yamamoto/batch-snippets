@@ -1,0 +1,25 @@
+@echo off
+setlocal EnableDelayedExpansion
+
+SET  /P REQUEST_ID=Please enter ID: 
+
+SET USER=clickvitauser
+SET PASSWORD=pass
+SET HOST=host.com
+SET PORT=3306
+SET DB=dbserver
+SET OPTIONS=--no-create-info --complete-insert --extended-insert --user=%USER% --password=%PASSWORD% --host=%HOST% --protocol=tcp --port=%PORT% --default-character-set=utf8 %DB%
+
+"C:\Program Files\MySQL\MySQL Workbench 6.3 CE\mysql.exe" -s -N -u%USER% -p%PASSWORD% -h%HOST% -P%PORT% -D%DB% -e "SELECT GROUP_CONCAT(ID SEPARATOR ',') FROM SUBTABLE WHERE TABLE_ID IN (%REQUEST_ID%)" > IDS.txt
+
+#rem IDs separated by commas
+set /p SUBTABLE_ID=<IDS.txt
+
+SET BACKUPFOLDER=backups_%REQUEST_ID%
+mkdir %BACKUPFOLDER%
+
+"C:\Program Files\MySQL\MySQL Workbench 6.3 CE\mysqldump.exe" %OPTIONS% BACKED_SUBTABLE --where="subtable_id in (%SUBTABLE_ID%)" > %BACKUPFOLDER%/BACKED_SUBTABLE.backup.sql
+"C:\Program Files\MySQL\MySQL Workbench 6.3 CE\mysqldump.exe" %OPTIONS% BACKED_TABLE --where="id in (%REQUEST_ID%)" > %BACKUPFOLDER%/BACKED_TABLE.backup.sql
+
+ECHO "Done."
+pause
